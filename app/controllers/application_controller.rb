@@ -3,14 +3,20 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
   before_action :authenticate_user
-
+  helper_method :current_token
   private
 
     def authenticate_user
-      redirect_to "https://github.com/login/oauth/authorize?client_id=#{ENV['GITHUB_CLIENT']}&scope=repo" if !logged_in?
+      redirect_to "https://github.com/login/oauth/authorize?client_id=#{ENV['GITHUB_CLIENT']}&scope=repo" unless logged_in?
     end
 
     def logged_in?
       !!session[:token]
     end
+
+    def current_token
+      token_resp = {"access_token" => session[:token]}
+      gitserv = GithubService.new(token_resp)
+    end
+
 end
